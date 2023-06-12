@@ -30,6 +30,7 @@ app.post("/", function (req, res) {
       
       const lat = cityState.coord.lat;
       const long = cityState.coord.lon;
+      
       const urlTemp = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=0a96cb24c70366b286de9b08b6c45cdb&units=imperial`;
       
       https.get(urlTemp, function(responseTemp){
@@ -38,6 +39,17 @@ app.post("/", function (req, res) {
         responseTemp.on("data", function(chunkTemp){
           dataTemp += chunkTemp;
         });
+        const zipHolder = zip.coord.lat;
+        const countryHolder = country.coord.lon;
+        
+        const urlZIP = `http://api.openweathermap.org/geo/1.0/zip?zip=${zipHolder},${countryHolder}&appid=0a96cb24c70366b286de9b08b6c45cdb`;
+        
+        https.get(urlZIP, function(responseTemp){
+          let dataZIP = ""; 
+  
+          responseTemp.on("data", function(chunkTemp){
+            dataZIP += chunkTemp;
+          });
           
         responseTemp.on('end', function () {
             const jsondataTemp = JSON.parse(dataTemp);
@@ -45,12 +57,13 @@ app.post("/", function (req, res) {
             const des = jsondataTemp.weather[0].description;
             const icon = jsondataTemp.weather[0].icon;
             const imageurl = "http://openweathermap.org/img/wn/" + icon + "@2x.png";
-            res.write(`<h1>The temp in ${cityName} , ${stateName} is ${temp} degrees</h1>`)
+            res.write(`<h1>The temp in ${cityName} , ${stateName} or ${zip} is ${temp} degrees</h1>`)
               res.write(`<p>The weather description is ${des} </p>`)
               res.write("<img src=" + imageurl + ">"
               );
         res.send();
        });
+      });
      });
    });
  });  
